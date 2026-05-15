@@ -1,0 +1,741 @@
+{
+  "map": {
+    "width": 27,
+    "height": 14,
+    "tileSize": 16
+  },
+  "tiles": [
+    {
+      "x": 0,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 1,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 2,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 3,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 3,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 3,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 4,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 4,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 4,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 5,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 5,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 5,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 5,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 6,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 6,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 6,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 6,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 7,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 7,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 7,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 7,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 8,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 8,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 8,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 8,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 9,
+      "y": 5,
+      "type": "GroundTop"
+    },
+    {
+      "x": 9,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 9,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 9,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 9,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 9,
+      "y": 4,
+      "type": "GroundBody"
+    },
+    {
+      "x": 10,
+      "y": 5,
+      "type": "GroundTop"
+    },
+    {
+      "x": 10,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 10,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 10,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 10,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 10,
+      "y": 4,
+      "type": "GroundBody"
+    },
+    {
+      "x": 11,
+      "y": 7,
+      "type": "GroundTop"
+    },
+    {
+      "x": 11,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 11,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 11,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 11,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 11,
+      "y": 4,
+      "type": "GroundBody"
+    },
+    {
+      "x": 11,
+      "y": 5,
+      "type": "GroundBody"
+    },
+    {
+      "x": 11,
+      "y": 6,
+      "type": "GroundBody"
+    },
+    {
+      "x": 12,
+      "y": 7,
+      "type": "GroundTop"
+    },
+    {
+      "x": 12,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 12,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 12,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 12,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 12,
+      "y": 4,
+      "type": "GroundBody"
+    },
+    {
+      "x": 12,
+      "y": 5,
+      "type": "GroundBody"
+    },
+    {
+      "x": 12,
+      "y": 6,
+      "type": "GroundBody"
+    },
+    {
+      "x": 13,
+      "y": 7,
+      "type": "GroundTop"
+    },
+    {
+      "x": 13,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 13,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 13,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 13,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 13,
+      "y": 4,
+      "type": "GroundBody"
+    },
+    {
+      "x": 13,
+      "y": 5,
+      "type": "GroundBody"
+    },
+    {
+      "x": 13,
+      "y": 6,
+      "type": "GroundBody"
+    },
+    {
+      "x": 14,
+      "y": 7,
+      "type": "GroundTop"
+    },
+    {
+      "x": 14,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 14,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 14,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 14,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 14,
+      "y": 4,
+      "type": "GroundBody"
+    },
+    {
+      "x": 14,
+      "y": 5,
+      "type": "GroundBody"
+    },
+    {
+      "x": 14,
+      "y": 6,
+      "type": "GroundBody"
+    },
+    {
+      "x": 15,
+      "y": 7,
+      "type": "GroundTop"
+    },
+    {
+      "x": 15,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 15,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 15,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 15,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 15,
+      "y": 4,
+      "type": "GroundBody"
+    },
+    {
+      "x": 15,
+      "y": 5,
+      "type": "GroundBody"
+    },
+    {
+      "x": 15,
+      "y": 6,
+      "type": "GroundBody"
+    },
+    {
+      "x": 16,
+      "y": 7,
+      "type": "GroundTop"
+    },
+    {
+      "x": 16,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 16,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 16,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 16,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 16,
+      "y": 4,
+      "type": "GroundBody"
+    },
+    {
+      "x": 16,
+      "y": 5,
+      "type": "GroundBody"
+    },
+    {
+      "x": 16,
+      "y": 6,
+      "type": "GroundBody"
+    },
+    {
+      "x": 17,
+      "y": 6,
+      "type": "GroundTop"
+    },
+    {
+      "x": 17,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 17,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 17,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 17,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 17,
+      "y": 4,
+      "type": "GroundBody"
+    },
+    {
+      "x": 17,
+      "y": 5,
+      "type": "GroundBody"
+    },
+    {
+      "x": 18,
+      "y": 5,
+      "type": "GroundTop"
+    },
+    {
+      "x": 18,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 18,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 18,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 18,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 18,
+      "y": 4,
+      "type": "GroundBody"
+    },
+    {
+      "x": 19,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 19,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 19,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 19,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 20,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 20,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 20,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 20,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 21,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 21,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 21,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 21,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 22,
+      "y": 3,
+      "type": "GroundTop"
+    },
+    {
+      "x": 22,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 22,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 22,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 23,
+      "y": 4,
+      "type": "GroundTop"
+    },
+    {
+      "x": 23,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 23,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 23,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 23,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 24,
+      "y": 4,
+      "type": "GroundTop"
+    },
+    {
+      "x": 24,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 24,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 24,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 24,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 25,
+      "y": 4,
+      "type": "GroundTop"
+    },
+    {
+      "x": 25,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 25,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 25,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 25,
+      "y": 3,
+      "type": "GroundBody"
+    },
+    {
+      "x": 26,
+      "y": 4,
+      "type": "GroundTop"
+    },
+    {
+      "x": 26,
+      "y": 0,
+      "type": "GroundBody"
+    },
+    {
+      "x": 26,
+      "y": 1,
+      "type": "GroundBody"
+    },
+    {
+      "x": 26,
+      "y": 2,
+      "type": "GroundBody"
+    },
+    {
+      "x": 26,
+      "y": 3,
+      "type": "GroundBody"
+    }
+  ],
+  "enemies": [
+    {
+      "x": 18,
+      "y": 9,
+      "type": "Enemy1"
+    }
+  ]
+}
