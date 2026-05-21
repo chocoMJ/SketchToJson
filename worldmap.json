@@ -7,7 +7,7 @@
   "tiles": [
     {
       "x": 0,
-      "y": 9,
+      "y": 10,
       "type": "GroundTop"
     },
     {
@@ -56,6 +56,11 @@
       "type": "GroundBody"
     },
     {
+      "x": 0,
+      "y": 9,
+      "type": "GroundBody"
+    },
+    {
       "x": 1,
       "y": 10,
       "type": "GroundTop"
@@ -2357,7 +2362,7 @@
     },
     {
       "x": 46,
-      "y": 9,
+      "y": 10,
       "type": "GroundTop"
     },
     {
@@ -2403,6 +2408,11 @@
     {
       "x": 46,
       "y": 8,
+      "type": "GroundBody"
+    },
+    {
+      "x": 46,
+      "y": 9,
       "type": "GroundBody"
     },
     {
@@ -5527,7 +5537,7 @@
     },
     {
       "x": 106,
-      "y": 8,
+      "y": 9,
       "type": "GroundTop"
     },
     {
@@ -5571,8 +5581,13 @@
       "type": "GroundBody"
     },
     {
-      "x": 107,
+      "x": 106,
       "y": 8,
+      "type": "GroundBody"
+    },
+    {
+      "x": 107,
+      "y": 9,
       "type": "GroundTop"
     },
     {
@@ -5616,8 +5631,13 @@
       "type": "GroundBody"
     },
     {
-      "x": 108,
+      "x": 107,
       "y": 8,
+      "type": "GroundBody"
+    },
+    {
+      "x": 108,
+      "y": 9,
       "type": "GroundTop"
     },
     {
@@ -5661,8 +5681,13 @@
       "type": "GroundBody"
     },
     {
-      "x": 109,
+      "x": 108,
       "y": 8,
+      "type": "GroundBody"
+    },
+    {
+      "x": 109,
+      "y": 9,
       "type": "GroundTop"
     },
     {
@@ -5706,8 +5731,13 @@
       "type": "GroundBody"
     },
     {
-      "x": 110,
+      "x": 109,
       "y": 8,
+      "type": "GroundBody"
+    },
+    {
+      "x": 110,
+      "y": 9,
       "type": "GroundTop"
     },
     {
@@ -5751,8 +5781,13 @@
       "type": "GroundBody"
     },
     {
-      "x": 111,
+      "x": 110,
       "y": 8,
+      "type": "GroundBody"
+    },
+    {
+      "x": 111,
+      "y": 9,
       "type": "GroundTop"
     },
     {
@@ -5796,8 +5831,13 @@
       "type": "GroundBody"
     },
     {
-      "x": 112,
+      "x": 111,
       "y": 8,
+      "type": "GroundBody"
+    },
+    {
+      "x": 112,
+      "y": 9,
       "type": "GroundTop"
     },
     {
@@ -5841,8 +5881,13 @@
       "type": "GroundBody"
     },
     {
-      "x": 113,
+      "x": 112,
       "y": 8,
+      "type": "GroundBody"
+    },
+    {
+      "x": 113,
+      "y": 9,
       "type": "GroundTop"
     },
     {
@@ -5883,6 +5928,11 @@
     {
       "x": 113,
       "y": 7,
+      "type": "GroundBody"
+    },
+    {
+      "x": 113,
+      "y": 8,
       "type": "GroundBody"
     },
     {

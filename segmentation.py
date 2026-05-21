@@ -3,12 +3,9 @@ import os
 import numpy as np
 
 
-def segment_connected_components(image_path, debug_dir="debug_segments"):
+def segment_connected_components(img, debug_dir="debug_segments"):
     # 디버그 폴더 생성
     os.makedirs(debug_dir, exist_ok=True)
-
-    # 이미지 파일 불러오기
-    img = cv2.imread(image_path)
 
     if img is None:
         print("이미지를 불러오지 못했습니다.")

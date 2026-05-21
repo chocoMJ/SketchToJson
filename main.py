@@ -2,10 +2,10 @@ import json
 import cv2
 import os
 
-import segmentation
-import classify_segment
-import make_chunk
-import sketch_to_json
+from segmentation import segment_connected_components
+from classify_segment import classify_segment_type
+from symbol_recognizer import predict_symbol
+from line_to_tiles import extract_ground_tiles_from_image
 
 
 def make_worldmap(world_width, world_height, tile_size, tiles):
@@ -27,56 +27,20 @@ def save_worldmap(worldmap, output_path):
     print(f"{output_path} 저장 완료")
 
 
-def main():
-    json_path = "chunks.json"
-    image_dir = "images"
+def image_to_FormData(img):
+    segments = segment_connected_components(img)
+    form_data_list = []
 
-    with open(json_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    for segment_info in segments :
+        seg_type = classify_segment_type(segment_info)
+        if seg_type == "LINE" :
+            extract_ground_tiles_from_image(segment_info)
+        else :
+            symbol_type = predict_symbol(segment_info["crop"])
+        
+    
 
-    chunk_info = data["chunk"]
+    
 
-    map_width = chunk_info["width"]
-    map_height = chunk_info["height"]
-    tile_size = chunk_info["tileSize"]
-
-    all_tiles = []
-
-    max_chunk_x = 0
-    max_chunk_y = 0
-
-    for image_info in data["images"]:
-        file_name = image_info["file"]
-        chunk_x = image_info["chunkX"]
-        chunk_y = image_info["chunkY"]
-
-        max_chunk_x = max(max_chunk_x, chunk_x)
-        max_chunk_y = max(max_chunk_y, chunk_y)
-
-        image_path = os.path.join(image_dir, file_name)
-
-        sketch_to_json.extract_ground_tiles_from_image(
-            image_path,
-            map_width,
-            map_height,
-            tile_size,
-            chunk_x,
-            chunk_y,
-            all_tiles
-        )
-
-    world_width = (max_chunk_x + 1) * map_width
-    world_height = (max_chunk_y + 1) * map_height
-
-    worldmap = make_worldmap(
-        world_width,
-        world_height,
-        tile_size,
-        all_tiles
-    )
-
-    save_worldmap(worldmap, "worldmap.json")
-
-
-if __name__ == "__main__":
-    main()
+img = cv2.imread("test.png")
+image_to_FormData(img)
