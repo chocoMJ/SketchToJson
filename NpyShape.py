@@ -3,6 +3,7 @@ from torch.utils.data import Dataset
 import torch
 
 class NpyShapeDataset(Dataset):
+    """.npy이미지 데이터를 pytorch학습용 DataSet형태로 바꿔준다."""
     def __init__(self, npy_paths, labels, max_per_class=None):
         self.images = []
         self.targets = []

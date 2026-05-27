@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from PIL import Image
 from image_convert import load_custom_image
 
 
@@ -68,7 +69,8 @@ def main():
     model.load_state_dict(torch.load("shape_classifier_cnn.pth", map_location=device))
 
     # 테스트할 샘플
-    image_tensor = load_custom_image("debug_segments/threshold.png")
+    img = Image.open("debug_segments/segment_3.png")
+    image_tensor = load_custom_image(img)
     image_tensor = image_tensor.to(device)
 
     label, confidence, probs = predict(model, image_tensor, class_names)

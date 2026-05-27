@@ -68,7 +68,7 @@ def segment_connected_components(img, debug_dir="debug_segments"):
             2
         )
 
-        # label 번호 표시
+        #label 번호 표시
         cv2.putText(
             debug_img,
             f"id:{label_id} area:{area}",
@@ -90,32 +90,11 @@ def segment_connected_components(img, debug_dir="debug_segments"):
     # bounding box가 그려진 디버그 이미지 저장
     cv2.imwrite(os.path.join(debug_dir, "debug_boxes.png"), debug_img)
 
-    print(f"총 segment 개수: {len(segments)}")
-    print(f"디버그 이미지 저장 위치: {debug_dir}")
-    print("저장된 파일:")
-    print("- threshold.png")
-    print("- debug_boxes.png")
-    print("- segment_번호.png")
+    #print(f"총 segment 개수: {len(segments)}")
+    #print(f"디버그 이미지 저장 위치: {debug_dir}")
+    #print("저장된 파일:")
+    #print("- threshold.png")
+    #print("- debug_boxes.png")
+    #print("- segment_번호.png")
 
     return segments
-
-
-def main():
-    image_path = "test.png" 
-
-    segments = segment_connected_components(
-        image_path,
-        debug_dir="debug_segments"
-    )
-
-    for seg in segments:
-        print(
-            f"label_id={seg['label_id']}, "
-            f"x={seg['x']}, y={seg['y']}, "
-            f"w={seg['w']}, h={seg['h']}, "
-            f"area={seg['area']}"
-        )
-
-
-if __name__ == "__main__":
-    main()

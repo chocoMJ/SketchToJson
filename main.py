@@ -1,46 +1,35 @@
-import json
 import cv2
-import os
-
 from segmentation import segment_connected_components
-from classify_segment import classify_segment_type
-from symbol_recognizer import predict_symbol
-from line_to_tiles import extract_ground_tiles_from_image
+from classify_segment import ShapeClassifier
+from createForm import make_form_data_item
+import json
 
+img = cv2.imread("images/chunk_0_0.png")
+segments = segment_connected_components(img)
 
-def make_worldmap(world_width, world_height, tile_size, tiles):
-    return {
-        "map": {
-            "width": world_width,
-            "height": world_height,
-            "tileSize": tile_size
-        },
-        "tiles": tiles,
-        "enemies": []
-    }
+classifier = ShapeClassifier("shape_classifier_cnn.pth")
 
+metadata_list = []
+file_list = []
 
-def save_worldmap(worldmap, output_path):
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(worldmap, f, indent=2, ensure_ascii=False)
+original_height, original_width = img.shape[:2]
 
-    print(f"{output_path} 저장 완료")
+for segment in segments:
+    segment_type = classifier.predict_crop(segment["crop"])
 
+    metadata, file_item = make_form_data_item(
+        segment=segment,
+        segment_type=segment_type,
+        original_height=original_height,
+        original_width=original_width,
+        tile_count=50
+    )
 
-def image_to_FormData(img):
-    segments = segment_connected_components(img)
-    form_data_list = []
-
-    for segment_info in segments :
-        seg_type = classify_segment_type(segment_info)
-        if seg_type == "LINE" :
-            extract_ground_tiles_from_image(segment_info)
-        else :
-            symbol_type = predict_symbol(segment_info["crop"])
-        
+    metadata_list.append(metadata)
+    file_list.append(file_item)
     
 
-    
+with open("form_data.json", "w", encoding="utf-8") as f:
+    json.dump(metadata_list, f, ensure_ascii=False, indent=4)
 
-img = cv2.imread("test.png")
-image_to_FormData(img)
+print("form_data.json 저장 완료")
