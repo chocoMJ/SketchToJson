@@ -37,27 +37,34 @@ def pixel_to_tile(pixel_x, pixel_y, tile_pixel_width, tile_pixel_height, tile_co
 
 def make_form_data_item(segment, segment_type, original_height, original_width, tile_count=16):
     """
-    segment:
+    triangle / star : 
+    
+    metadata:
+    "type": type,
+    "tile_pos": {
+        "x": int,
+        "y": int,
+    },
+    "image_field": "file_triangle_{label_id}",
+    "image_filename": "triangle_{label_id}.png",
+
+    file_item :
+    "segment_id": "triangle_{label_id}",
+    "field_name": "file_triangle_{label_id}",
+    "filename": "triangle_{label_id}.png",
+    "content": png_bytes,
+    "content_type": "image/png",
+
+
+
+    structure의 경우 다음 추가
+    "points": [
         {
-            "label_id": int,
             "x": int,
             "y": int,
-            "w": int,
-            "h": int,
-            "area": int,
-            "crop": ndarray
-        }
-
-    segment_type:
-        "triangle" | "star" | "structure"
-
-    image_shape:
-        원본 이미지 shape
-        예: image.shape
-
-    tile_count:
-        원본 이미지를 가로 tile_count칸, 세로 tile_count칸으로 나눔
-        예: 1000x1000 이미지, tile_count=50 -> 50x50 타일맵
+        },
+        ...
+    ],
     """
 
     if tile_count <= 0:
