@@ -78,6 +78,11 @@ class ShapeClassifier:
         return tensor.to(self.device)
 
     def predict_crop(self, crop):
+        label, _ = self.predict_crop_with_confidence(crop)
+
+        return label
+
+    def predict_crop_with_confidence(self, crop):
         input_tensor = self.preprocess_crop(crop)
 
         with torch.no_grad():
@@ -90,4 +95,4 @@ class ShapeClassifier:
             pred_idx = pred_idx.item()
             confidence = confidence.item()
 
-        return self.class_names[pred_idx]
+        return self.class_names[pred_idx], confidence

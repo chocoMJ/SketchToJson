@@ -3,10 +3,7 @@ import os
 import numpy as np
 
 
-def segment_connected_components(img, debug_dir="debug_segments"):
-    # 디버그 폴더 생성
-    os.makedirs(debug_dir, exist_ok=True)
-
+def segment_connected_components(img, debug_dir=None):
     if img is None:
         print("이미지를 불러오지 못했습니다.")
         return []
@@ -30,8 +27,7 @@ def segment_connected_components(img, debug_dir="debug_segments"):
 
     segments = []
 
-    # 디버그용 이미지
-    debug_img = img.copy()
+    debug_img = img.copy() if debug_dir else None
 
     for label_id in range(1, num_labels):  # 0은 배경
         x = stats[label_id, cv2.CC_STAT_LEFT]
@@ -59,36 +55,34 @@ def segment_connected_components(img, debug_dir="debug_segments"):
 
         segments.append(segment_info)
 
-        # 디버그 이미지에 bounding box 그리기
-        cv2.rectangle(
-            debug_img,
-            (x, y),
-            (x + w, y + h),
-            (0, 0, 255),
-            2
-        )
+        if debug_dir:
+            os.makedirs(debug_dir, exist_ok=True)
 
-        #label 번호 표시
-        cv2.putText(
-            debug_img,
-            f"id:{label_id} area:{area}",
-            (x, max(y - 5, 15)),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (0, 0, 255),
-            1,
-            cv2.LINE_AA
-        )
+            cv2.rectangle(
+                debug_img,
+                (x, y),
+                (x + w, y + h),
+                (0, 0, 255),
+                2
+            )
 
-        # 각 segment crop 저장
-        crop_path = os.path.join(debug_dir, f"segment_{label_id}.png")
-        cv2.imwrite(crop_path, crop)
+            cv2.putText(
+                debug_img,
+                f"id:{label_id} area:{area}",
+                (x, max(y - 5, 15)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 0, 255),
+                1,
+                cv2.LINE_AA
+            )
 
-    # 전체 이진화 이미지 저장
-    cv2.imwrite(os.path.join(debug_dir, "threshold.png"), thresh)
+            crop_path = os.path.join(debug_dir, f"segment_{label_id}.png")
+            cv2.imwrite(crop_path, crop)
 
-    # bounding box가 그려진 디버그 이미지 저장
-    cv2.imwrite(os.path.join(debug_dir, "debug_boxes.png"), debug_img)
+    if debug_dir:
+        cv2.imwrite(os.path.join(debug_dir, "threshold.png"), thresh)
+        cv2.imwrite(os.path.join(debug_dir, "debug_boxes.png"), debug_img)
 
     #print(f"총 segment 개수: {len(segments)}")
     #print(f"디버그 이미지 저장 위치: {debug_dir}")
