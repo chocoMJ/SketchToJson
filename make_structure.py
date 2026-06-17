@@ -230,7 +230,7 @@ def make_structure_sample():
     return arr
 
 
-def make_structure_npy(save_path="data_polygon/structure.npy", count=5000):
+def make_structure_npy(save_path="data_polygon/structure.npy", count=50000):
     samples = []
 
     for _ in range(count):
@@ -248,4 +248,4 @@ def make_structure_npy(save_path="data_polygon/structure.npy", count=5000):
 
 
 if __name__ == "__main__":
-    make_structure_npy("data_polygon/structure.npy", count=5000)
+    make_structure_npy("data_polygon/structure.npy", count=50000)
