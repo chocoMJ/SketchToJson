@@ -8,11 +8,16 @@ class NpyShapeDataset(Dataset):
         self.images = []
         self.targets = []
 
-        for npy_path, label in zip(npy_paths, labels):
+        for index, (npy_path, label) in enumerate(zip(npy_paths, labels)):
             data = np.load(npy_path)
 
             if max_per_class is not None:
-                data = data[:max_per_class]
+                if isinstance(max_per_class, (list, tuple)):
+                    class_limit = max_per_class[index]
+                else:
+                    class_limit = max_per_class
+
+                data = data[:class_limit]
 
             data = data.reshape(-1, 28, 28)
 

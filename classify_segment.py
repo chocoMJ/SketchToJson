@@ -12,7 +12,7 @@ class ShapeNet(nn.Module):
         self.dropout1 = nn.Dropout(0.25)
         self.dropout2 = nn.Dropout(0.5)
         self.fc1 = nn.Linear(9216, 128)
-        self.fc2 = nn.Linear(128, 3)
+        self.fc2 = nn.Linear(128, 5)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -33,7 +33,7 @@ class ShapeNet(nn.Module):
 class ShapeClassifier:
     """전처리 후 crop의 타입을 반환"""
     def __init__(self, model_path, device=None):
-        self.class_names = ["triangle", "star", "structure"]
+        self.class_names = ["triangle", "structure", "plus", "hash", "arrow"]
 
         if device is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -59,7 +59,6 @@ class ShapeClassifier:
 
         canvas[top:top + h, left:left + w] = crop
 
-        #resize
         img = Image.fromarray(canvas)
         img = img.resize((28, 28), Image.Resampling.BILINEAR)
 

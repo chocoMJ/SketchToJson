@@ -105,7 +105,7 @@ def make_form_data_item(segment, segment_type, original_height, original_width, 
         "image_filename": filename,
     }
 
-    if segment_type in ["triangle", "star"]:
+    if segment_type in ["triangle", "plus", "hash", "arrow"]:
         # 별 / 삼각형은 오브젝트 하나만 소환하므로 tile_pos 하나만 사용
         pass
 
