@@ -18,7 +18,7 @@ class ShapeNet(nn.Module):
         self.dropout1 = nn.Dropout(0.25)
         self.dropout2 = nn.Dropout(0.5)
         self.fc1 = nn.Linear(9216, 128)
-        self.fc2 = nn.Linear(128, 5)
+        self.fc2 = nn.Linear(128, 6)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -94,7 +94,7 @@ def main():
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
     parser.add_argument('--max-per-object-class', type=int, default=5000, metavar='N',
-                        help='max samples for triangle/plus/hash classes; structure uses x8 and arrow uses x4 (default: 5000)')
+                        help='max samples for triangle/plus/hash/star classes; structure uses x8 and arrow uses x4 (default: 5000)')
     args = parser.parse_args()
 
     use_accel = not args.no_accel and torch.accelerator.is_available()
@@ -124,15 +124,17 @@ def main():
             "data_polygon/structure.npy",
             "data_polygon/plus.npy",
             "data_polygon/hash.npy",
-            "data_polygon/arrow.npy"
+            "data_polygon/arrow.npy",
+            "data_polygon/handstar.npy"
         ],
-        labels=[0, 1, 2, 3, 4],
+        labels=[0, 1, 2, 3, 4, 5],
         max_per_class=[
             args.max_per_object_class,
             args.max_per_object_class * 8,
             args.max_per_object_class,
             args.max_per_object_class,
             args.max_per_object_class * 4,
+            args.max_per_object_class,
         ]
     )
 
