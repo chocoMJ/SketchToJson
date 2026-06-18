@@ -1,97 +1,154 @@
-import os
-import random
 import math
-import numpy as np
-from PIL import Image, ImageDraw
+import random
 
-IMAGE_SIZE = 28
-SCALE = 4
-CANVAS_SIZE = IMAGE_SIZE * SCALE
+from sketch_variation import CANVAS_SIZE, choose_profile, normal, point_from, render_paths, save_samples, unit
 
 
-def make_canvas():
-    return Image.new("L", (CANVAS_SIZE, CANVAS_SIZE), 0)
+HASH_RULES = {
+    "light": {
+        "angle_between": (75, 105),
+        "parallel_jitter": 3,
+        "gap": (26, 44),
+        "length": (68, 96),
+        "stagger": 3,
+        "endpoint_jitter": 1.5,
+        "curve_scale": 0.10,
+    },
+    "medium": {
+        "angle_between": (75, 105),
+        "parallel_jitter": 3,
+        "gap": (26, 44),
+        "length": (68, 96),
+        "stagger": 4,
+        "endpoint_jitter": 2.0,
+        "curve_scale": 0.12,
+    },
+    "strong": {
+        "angle_between": (68, 112),
+        "parallel_jitter": 5,
+        "gap": (24, 48),
+        "length": (64, 100),
+        "stagger": 5,
+        "endpoint_jitter": 3.0,
+        "curve_scale": 0.15,
+    },
+    "boundary": {
+        "angle_between": (62, 118),
+        "parallel_jitter": 7,
+        "gap": (22, 52),
+        "length": (60, 104),
+        "stagger": 6,
+        "endpoint_jitter": 4.0,
+        "curve_scale": 0.18,
+    },
+}
 
 
-def downsample(img):
-    img = img.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.BILINEAR)
-    return np.array(img, dtype=np.uint8)
+def _angle_delta(first, second):
+    return abs((first - second + math.pi) % math.tau - math.pi)
 
 
-def draw_centered_line(draw, center, length, angle, width):
-    cx, cy = center
+def _line_from_center(center, angle, length):
     half = length / 2
-    dx = math.cos(angle) * half
-    dy = math.sin(angle) * half
+    return point_from(center, angle + math.pi, half), point_from(center, angle, half)
 
-    draw.line(
-        [(cx - dx, cy - dy), (cx + dx, cy + dy)],
-        fill=255,
-        width=width,
+
+def _jitter_endpoint(point, line_angle, amount):
+    tx, ty = unit(line_angle)
+    nx, ny = normal(line_angle)
+    along = random.uniform(-amount, amount)
+    across = random.uniform(-amount, amount)
+    return point[0] + tx * along + nx * across, point[1] + ty * along + ny * across
+
+
+def _sample_hash_params(profile=None):
+    profile = profile or choose_profile()
+    rules = HASH_RULES[profile.name]
+    width = random.randint(*profile.width_range)
+    gap = max(random.uniform(*rules["gap"]), width * 2.8)
+    base_angle = random.uniform(0, math.tau)
+    angle_between = math.radians(random.uniform(*rules["angle_between"]))
+    cross_angle = base_angle + angle_between
+    center = (
+        CANVAS_SIZE / 2 + random.uniform(-5, 5),
+        CANVAS_SIZE / 2 + random.uniform(-5, 5),
     )
+
+    return {
+        "profile": profile,
+        "rules": rules,
+        "width": width,
+        "center": center,
+        "gap": gap,
+        "base_angle": base_angle,
+        "cross_angle": cross_angle,
+        "angle_between": angle_between,
+    }
+
+
+def _build_hash_paths(profile=None):
+    params = _sample_hash_params(profile)
+    profile = params["profile"]
+    rules = params["rules"]
+    width = params["width"]
+    paths = []
+    pairs = []
+
+    for pair_index, pair_angle in enumerate((params["base_angle"], params["cross_angle"])):
+        nx, ny = normal(pair_angle)
+        tx, ty = unit(pair_angle)
+        pair_delta = math.radians(random.uniform(-rules["parallel_jitter"], rules["parallel_jitter"]))
+        line_angles = (pair_angle - pair_delta / 2, pair_angle + pair_delta / 2)
+        lines = []
+
+        for side, line_angle in zip((-1, 1), line_angles):
+            stagger = random.uniform(-rules["stagger"], rules["stagger"])
+            line_center = (
+                params["center"][0] + nx * params["gap"] * side / 2 + tx * stagger,
+                params["center"][1] + ny * params["gap"] * side / 2 + ty * stagger,
+            )
+            start, end = _line_from_center(line_center, line_angle, random.uniform(*rules["length"]))
+            start = _jitter_endpoint(start, line_angle, rules["endpoint_jitter"])
+            end = _jitter_endpoint(end, line_angle, rules["endpoint_jitter"])
+            curve = random.uniform(-profile.curve * rules["curve_scale"], profile.curve * rules["curve_scale"])
+            path = {"points": [start, end], "width": width, "curve_offsets": [curve]}
+            paths.append(path)
+            lines.append(
+                {
+                    "angle": line_angle,
+                    "center": line_center,
+                    "side": side,
+                    "path": path,
+                }
+            )
+
+        pairs.append(
+            {
+                "index": pair_index,
+                "angle": pair_angle,
+                "normal": (nx, ny),
+                "tangent": (tx, ty),
+                "lines": lines,
+            }
+        )
+
+    geometry = {**params, "pairs": pairs}
+    return geometry, paths
 
 
 def make_hash():
-    img = make_canvas()
-    draw = ImageDraw.Draw(img)
+    geometry, paths = _build_hash_paths()
+    return render_paths(paths, profile=geometry["profile"])
 
-    width = random.randint(4, 8)
-    center_x = random.randint(52, 60)
-    center_y = random.randint(52, 60)
-    vertical_length = random.randint(68, 88)
-    horizontal_length = random.randint(68, 88)
-    gap = random.randint(20, 32)
-
-    vertical_angle = math.radians(random.uniform(-6, 6) - 90)
-    horizontal_angle = math.radians(random.uniform(-6, 6))
-
-    vertical_dx = math.cos(horizontal_angle) * gap / 2
-    vertical_dy = math.sin(horizontal_angle) * gap / 2
-    horizontal_dx = math.cos(vertical_angle) * gap / 2
-    horizontal_dy = math.sin(vertical_angle) * gap / 2
-
-    for side in (-1, 1):
-        draw_centered_line(
-            draw,
-            (center_x + vertical_dx * side, center_y + vertical_dy * side),
-            vertical_length,
-            vertical_angle,
-            width,
-        )
-        draw_centered_line(
-            draw,
-            (center_x + horizontal_dx * side, center_y + horizontal_dy * side),
-            horizontal_length,
-            horizontal_angle,
-            width,
-        )
-
-    rotation_angle = random.uniform(-20, 20)
-    img = img.rotate(rotation_angle, resample=Image.Resampling.NEAREST, fillcolor=0)
-
-    return downsample(img)
 
 
 def make_hash_sample():
     return make_hash()
 
 
-def make_hash_npy(save_path="data_polygon/hash.npy", count=50000):
-    samples = []
-
-    for _ in range(count):
-        arr = make_hash_sample()
-        arr = arr.reshape(-1)
-        samples.append(arr)
-
-    samples = np.array(samples, dtype=np.uint8)
-
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    np.save(save_path, samples)
-
-    print("saved npy:", save_path)
-    print("shape:", samples.shape)
+def make_hash_npy(save_path="data_polygon/hash.npy", count=100000, seed=None):
+    return save_samples(save_path, make_hash_sample, count, seed=seed)
 
 
 if __name__ == "__main__":
-    make_hash_npy("data_polygon/hash.npy", count=50000)
+    make_hash_npy("data_polygon/hash.npy", count=100000)

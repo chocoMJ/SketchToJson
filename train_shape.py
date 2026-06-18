@@ -93,7 +93,7 @@ def main():
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
-    parser.add_argument('--max-per-object-class', type=int, default=5000, metavar='N',
+    parser.add_argument('--max-per-object-class', type=int, default=20000, metavar='N',
                         help='max samples for triangle/plus/hash/star classes; structure uses x8 and arrow uses x4 (default: 5000)')
     args = parser.parse_args()
 

@@ -1,72 +1,56 @@
-import os
-import random
 import math
-import numpy as np
-from PIL import Image, ImageDraw
+import random
 
-IMAGE_SIZE = 28
-SCALE = 4
-CANVAS_SIZE = IMAGE_SIZE * SCALE
+from sketch_variation import CANVAS_SIZE, choose_profile, render_paths, save_samples
 
 
-def make_canvas():
-    return Image.new("L", (CANVAS_SIZE, CANVAS_SIZE), 0)
+def _sample_triangle_points(profile):
+    center = (
+        CANVAS_SIZE / 2 + random.uniform(-6, 6),
+        CANVAS_SIZE / 2 + random.uniform(-6, 6),
+    )
+    rotation = random.uniform(0, math.tau)
 
+    if profile.name == "boundary":
+        radii = [random.uniform(34, 50), random.uniform(32, 50), random.uniform(32, 50)]
+        angle_jitter = math.radians(16)
+    elif profile.name == "strong":
+        radii = [random.uniform(36, 48), random.uniform(34, 48), random.uniform(34, 48)]
+        angle_jitter = math.radians(11)
+    else:
+        radii = [random.uniform(38, 46), random.uniform(36, 46), random.uniform(36, 46)]
+        angle_jitter = math.radians(6)
 
-def downsample(img):
-    img = img.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.BILINEAR)
-    return np.array(img, dtype=np.uint8)
+    points = []
+    for index, radius in enumerate(radii):
+        angle = rotation - math.pi / 2 + index * math.tau / 3 + random.uniform(-angle_jitter, angle_jitter)
+        points.append((center[0] + math.cos(angle) * radius, center[1] + math.sin(angle) * radius))
+
+    points.append(points[0])
+    return points
 
 
 def make_handtriangle():
-    img = make_canvas()
-    draw = ImageDraw.Draw(img)
+    profile = choose_profile()
+    points = _sample_triangle_points(profile)
+    width = random.randint(*profile.width_range)
+    curves = [random.uniform(-profile.curve * 0.18, profile.curve * 0.18) for _ in range(len(points) - 1)]
 
-    width = random.randint(4, 10)
-    left = random.randint(12, 24)
-    right = random.randint(88, 100)
-    top = random.randint(10, 24)
-    bottom = random.randint(82, 100)
-
-    apex_x = random.randint(left + 18, right - 18)
-    apex_y = random.randint(top, top + 10)
-    left_x = random.randint(left, left + 12)
-    left_y = random.randint(bottom - 8, bottom)
-    right_x = random.randint(right - 12, right)
-    right_y = random.randint(bottom - 8, bottom)
-
-    points = [
-        (apex_x, apex_y),
-        (right_x, right_y),
-        (left_x, left_y),
-        (apex_x, apex_y),
-    ]
-
-    draw.line(points, fill=255, width=width, joint="curve")
-
-    return downsample(img)
+    return render_paths(
+        [{"points": points, "width": width, "curve_offsets": curves}],
+        profile=profile,
+        flip_x=random.random() < 0.5,
+        flip_y=random.random() < 0.5,
+    )
 
 
 def make_handtriangle_sample():
     return make_handtriangle()
 
 
-def make_handtriangle_npy(save_path="data_polygon/handtriangle.npy", count=50000):
-    samples = []
-
-    for _ in range(count):
-        arr = make_handtriangle_sample()
-        arr = arr.reshape(-1)
-        samples.append(arr)
-
-    samples = np.array(samples, dtype=np.uint8)
-
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    np.save(save_path, samples)
-
-    print("saved npy:", save_path)
-    print("shape:", samples.shape)
+def make_handtriangle_npy(save_path="data_polygon/handtriangle.npy", count=100000, seed=None):
+    return save_samples(save_path, make_handtriangle_sample, count, seed=seed)
 
 
 if __name__ == "__main__":
-    make_handtriangle_npy("data_polygon/handtriangle.npy", count=50000)
+    make_handtriangle_npy("data_polygon/handtriangle.npy", count=100000)

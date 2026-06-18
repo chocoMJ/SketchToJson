@@ -1,100 +1,107 @@
-import os
+import math
 import random
-import numpy as np
-from PIL import Image, ImageDraw
 
-IMAGE_SIZE = 28
-SCALE = 4
-CANVAS_SIZE = IMAGE_SIZE * SCALE
+from sketch_variation import CANVAS_SIZE, choose_profile, render_paths, save_samples
 
 
-def make_canvas():
-    return Image.new("L", (CANVAS_SIZE, CANVAS_SIZE), 0)
+def _sample_star_params(profile=None):
+    profile = profile or choose_profile()
+    mode = "one_stroke" if random.random() < 0.5 else "outline"
+
+    if profile.name == "boundary":
+        outer_radius = random.uniform(34, 47)
+        inner_radius = random.uniform(12, 29)
+        angle_jitter = math.radians(12)
+        radius_jitter = 0.22
+    elif profile.name == "strong":
+        outer_radius = random.uniform(36, 46)
+        inner_radius = random.uniform(14, 27)
+        angle_jitter = math.radians(9)
+        radius_jitter = 0.16
+    else:
+        outer_radius = random.uniform(38, 45)
+        inner_radius = random.uniform(16, 25)
+        angle_jitter = math.radians(5)
+        radius_jitter = 0.10
+
+    return {
+        "profile": profile,
+        "mode": mode,
+        "center": (
+            CANVAS_SIZE / 2 + random.uniform(-5, 5),
+            CANVAS_SIZE / 2 + random.uniform(-5, 5),
+        ),
+        "rotation": random.uniform(0, math.tau),
+        "outer_radius": outer_radius,
+        "inner_radius": inner_radius,
+        "angle_jitter": angle_jitter,
+        "radius_jitter": radius_jitter,
+    }
 
 
-def downsample(img):
-    img = img.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.BILINEAR)
-    return np.array(img, dtype=np.uint8)
+def _radial_point(center, angle, radius):
+    return center[0] + math.cos(angle) * radius, center[1] + math.sin(angle) * radius
 
 
-def jitter(point, amount):
-    x, y = point
-    return (
-        x + random.randint(-amount, amount),
-        y + random.randint(-amount, amount),
-    )
+def _outer_points(params):
+    points = []
+    for index in range(5):
+        angle = params["rotation"] - math.pi / 2 + index * math.tau / 5
+        angle += random.uniform(-params["angle_jitter"], params["angle_jitter"])
+        radius = params["outer_radius"] * random.uniform(1 - params["radius_jitter"], 1 + params["radius_jitter"])
+        points.append(_radial_point(params["center"], angle, radius))
+    return points
+
+
+def _outline_points(params, outer):
+    points = []
+    for index in range(5):
+        outer_angle = params["rotation"] - math.pi / 2 + index * math.tau / 5
+        inner_angle = outer_angle + math.pi / 5
+        inner_angle += random.uniform(-params["angle_jitter"] * 0.6, params["angle_jitter"] * 0.6)
+        inner_radius = params["inner_radius"] * random.uniform(0.85, 1.15)
+        points.append(outer[index])
+        points.append(_radial_point(params["center"], inner_angle, inner_radius))
+    points.append(points[0])
+    return points
+
+
+def _one_stroke_points(outer):
+    if random.random() < 0.5:
+        order = [0, 2, 4, 1, 3, 0]
+    else:
+        order = [0, 3, 1, 4, 2, 0]
+    return [outer[index] for index in order]
 
 
 def make_star():
-    img = make_canvas()
-    draw = ImageDraw.Draw(img)
+    params = _sample_star_params()
+    profile = params["profile"]
+    outer = _outer_points(params)
 
-    width = random.randint(4, 10)
-    shift_x = random.randint(-4, 4)
-    shift_y = random.randint(-4, 4)
-    scale = random.uniform(0.9, 1.08)
-    center = CANVAS_SIZE / 2
-
-    base_points = {
-        "top": (56, 14),
-        "left_upper": (18, 42),
-        "right_upper": (94, 42),
-        "left_lower": (30, 92),
-        "right_lower": (82, 92),
-    }
-
-    points = {}
-    for name, (x, y) in base_points.items():
-        scaled = (
-            center + (x - center) * scale + shift_x,
-            center + (y - center) * scale + shift_y,
-        )
-        points[name] = jitter((round(scaled[0]), round(scaled[1])), 4)
-
-    if random.random() < 0.5:
-        order = [
-            points["top"],
-            points["left_lower"],
-            points["right_upper"],
-            points["left_upper"],
-            points["right_lower"],
-            points["top"],
-        ]
+    if params["mode"] == "one_stroke":
+        points = _one_stroke_points(outer)
+        curve_scale = 0.30
     else:
-        order = [
-            points["top"],
-            points["right_lower"],
-            points["left_upper"],
-            points["right_upper"],
-            points["left_lower"],
-            points["top"],
-        ]
+        points = _outline_points(params, outer)
+        curve_scale = 0.18
 
-    draw.line(order, fill=255, width=width, joint="curve")
+    width = random.randint(*profile.width_range)
+    curves = [random.uniform(-profile.curve * curve_scale, profile.curve * curve_scale) for _ in range(len(points) - 1)]
 
-    return downsample(img)
+    return render_paths(
+        [{"points": points, "width": width, "curve_offsets": curves}],
+        profile=profile,
+    )
 
 
 def make_star_sample():
     return make_star()
 
 
-def make_star_npy(save_path="data_polygon/handstar.npy", count=50000):
-    samples = []
-
-    for _ in range(count):
-        arr = make_star_sample()
-        arr = arr.reshape(-1)
-        samples.append(arr)
-
-    samples = np.array(samples, dtype=np.uint8)
-
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    np.save(save_path, samples)
-
-    print("saved npy:", save_path)
-    print("shape:", samples.shape)
+def make_star_npy(save_path="data_polygon/handstar.npy", count=100000, seed=None):
+    return save_samples(save_path, make_star_sample, count, seed=seed)
 
 
 if __name__ == "__main__":
-    make_star_npy("data_polygon/handstar.npy", count=50000)
+    make_star_npy("data_polygon/handstar.npy", count=100000)
