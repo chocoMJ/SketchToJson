@@ -123,10 +123,16 @@ class DatasetVariationTests(unittest.TestCase):
         specs = [make_structure._choose_structure_spec() for _ in range(5000)]
 
         new_ratio = sum(spec["family"] == "new" for spec in specs) / len(specs)
+        hard_ratio = sum(spec["family"] == "hard" for spec in specs) / len(specs)
+        modern_ratio = sum(spec["family"] in {"new", "hard"} for spec in specs) / len(specs)
         closed_ratio = sum(spec["closure"] == "closed" for spec in specs) / len(specs)
 
-        self.assertGreater(new_ratio, 0.70)
-        self.assertLess(new_ratio, 0.80)
+        self.assertGreater(new_ratio, 0.56)
+        self.assertLess(new_ratio, 0.64)
+        self.assertGreater(hard_ratio, 0.16)
+        self.assertLess(hard_ratio, 0.24)
+        self.assertGreater(modern_ratio, 0.76)
+        self.assertLess(modern_ratio, 0.84)
         self.assertGreater(closed_ratio, 0.46)
         self.assertLess(closed_ratio, 0.54)
 
@@ -135,12 +141,50 @@ class DatasetVariationTests(unittest.TestCase):
         self.assertIn("open_random_polyline", categories)
         self.assertIn("irregular_open_outline", categories)
         self.assertIn("irregular_closed_room", categories)
+        self.assertIn("cross_like_structure", categories)
+        self.assertIn("junction_structure", categories)
+        self.assertIn("room_with_internal_wall", categories)
 
         for spec in specs:
             if spec["closure"] == "closed":
                 self.assertGreaterEqual(spec["vertex_count"], 4)
             else:
                 self.assertGreaterEqual(spec["vertex_count"], 3)
+            if spec["family"] == "hard":
+                self.assertIn("paths", spec)
+                self.assertGreaterEqual(len(spec["paths"]), 2)
+
+    def test_plus_sampler_keeps_clear_cross_geometry(self):
+        random.seed(61)
+
+        for profile_name in ["light", "medium", "strong", "boundary"]:
+            profile = choose_profile(profile_name)
+            for _ in range(200):
+                params = make_plusDataSet._sample_plus_params(profile)
+                self.assertTrue(make_plusDataSet._valid_plus_params(params))
+
+                angle = math.degrees(
+                    make_plusDataSet._line_angle_delta(params["base_angle"], params["cross_angle"])
+                )
+                self.assertGreaterEqual(angle, 65)
+                self.assertLessEqual(angle, 90)
+                self.assertGreaterEqual(min(make_plusDataSet._plus_arm_lengths(params)), 16)
+
+    def test_hard_triangle_sampler_keeps_three_valid_vertices(self):
+        random.seed(71)
+
+        for profile_name in ["light", "medium", "strong", "boundary"]:
+            profile = choose_profile(profile_name)
+            obtuse_or_scalene = 0
+            for _ in range(200):
+                points = make_handtriangleDataSet._sample_hard_triangle_points(profile)
+                self.assertTrue(make_handtriangleDataSet._valid_triangle_points(points))
+                metrics = make_handtriangleDataSet._triangle_metrics(points)
+                edge_ratio = max(metrics["lengths"]) / min(metrics["lengths"])
+                if max(metrics["angles"]) > 100 or edge_ratio > 1.25:
+                    obtuse_or_scalene += 1
+
+            self.assertGreater(obtuse_or_scalene, 120)
 
     def test_structure_npy_generation_is_seed_reproducible(self):
         with tempfile.TemporaryDirectory() as temp_dir:

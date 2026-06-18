@@ -20,6 +20,7 @@ OUTER_END_MIN = 18
 OUTER_END_MAX = 24
 NEW_STRUCTURE_RATIO = 0.75
 CLOSED_STRUCTURE_RATIO = 0.50
+HARD_STRUCTURE_RATIO = 0.20
 
 
 def random_outer_start():
@@ -72,24 +73,65 @@ def _make_spec(category, family, closed, points):
     }
 
 
-def _render_points(points, width=None):
+def _make_path(points, width=None, allow_gap=True, curve_scale=0.14):
+    return {
+        "points": points,
+        "width": width,
+        "allow_gap": allow_gap,
+        "curve_scale": curve_scale,
+    }
+
+
+def _flatten_paths(paths):
+    points = []
+    for path in paths:
+        points.extend(path["points"])
+    return points
+
+
+def _make_multi_path_spec(category, family, closed, paths, points=None):
+    return {
+        **_make_spec(category, family, closed, points or _flatten_paths(paths)),
+        "paths": paths,
+    }
+
+
+def _render_path_collection(paths, width=None):
     profile = choose_profile()
-    high_points = scale_points([jitter_point(x, y) for x, y in points])
-    high_points = transform_points(
-        high_points,
-        scale=random.uniform(0.86, 1.06),
-        shift=(random.uniform(-5, 5), random.uniform(-5, 5)),
-    )
-    high_width = width * SCALE if width is not None else random.randint(*profile.width_range)
-    curves = [random.uniform(-profile.curve * 0.14, profile.curve * 0.14) for _ in range(len(high_points) - 1)]
+    scale = random.uniform(0.86, 1.06)
+    shift = (random.uniform(-5, 5), random.uniform(-5, 5))
+    rendered_paths = []
+
+    for path in paths:
+        path_width = path.get("width", width)
+        high_points = scale_points([jitter_point(x, y) for x, y in path["points"]])
+        high_points = transform_points(high_points, scale=scale, shift=shift)
+        high_width = path_width * SCALE if path_width is not None else random.randint(*profile.width_range)
+        curve_scale = path.get("curve_scale", 0.14)
+        curves = [
+            random.uniform(-profile.curve * curve_scale, profile.curve * curve_scale)
+            for _ in range(len(high_points) - 1)
+        ]
+        rendered_paths.append(
+            {
+                "points": high_points,
+                "width": high_width,
+                "curve_offsets": curves,
+                "allow_gap": path.get("allow_gap", True),
+            }
+        )
 
     return render_paths(
-        [{"points": high_points, "width": high_width, "curve_offsets": curves}],
+        rendered_paths,
         profile=profile,
         rotate=random.uniform(0, math.tau),
         flip_x=random.random() < 0.5,
         flip_y=random.random() < 0.5,
     )
+
+
+def _render_points(points, width=None):
+    return _render_path_collection([_make_path(points, width=width)])
 
 
 def draw_lines(points, width=None):
@@ -276,6 +318,90 @@ def _legacy_random_polyline_spec():
     return _make_spec("random_polyline", "legacy", False, points)
 
 
+def _cross_like_structure_spec():
+    cx = random.uniform(11, 17)
+    cy = random.uniform(11, 17)
+    left = random.uniform(2, 6)
+    right = random.uniform(20, 26)
+    top = random.uniform(2, 7)
+    bottom = random.uniform(20, 26)
+    offset = random.uniform(-2.5, 2.5)
+    mode = random.choice(["t_junction", "offset_cross", "kinked_cross"])
+
+    if mode == "t_junction":
+        main = [(left, cy + random.uniform(-1, 1)), (cx, cy), (right, cy + random.uniform(-1, 1))]
+        branch = [(cx + offset, top), (cx, cy)]
+        paths = [_make_path(main), _make_path(branch)]
+    elif mode == "offset_cross":
+        main = [(left, cy), (cx, cy), (right, cy + random.uniform(-1.5, 1.5))]
+        branch = [(cx + offset, top), (cx, cy), (cx - offset * 0.45, bottom)]
+        tail = [(cx, cy), (cx + random.uniform(3, 6), cy + random.uniform(3, 6))]
+        paths = [_make_path(main), _make_path(branch), _make_path(tail)]
+    else:
+        main = [(left, cy), (cx - 1.5, cy + random.uniform(-2, 2)), (right, cy + random.uniform(-2, 2))]
+        branch = [(cx + offset, top), (cx, cy), (cx + random.uniform(-2, 2), bottom)]
+        paths = [_make_path(main), _make_path(branch)]
+
+    return _make_multi_path_spec("cross_like_structure", "hard", False, paths)
+
+
+def _junction_structure_spec():
+    cx = random.uniform(10, 18)
+    cy = random.uniform(10, 18)
+    ray_count = random.randint(3, 4)
+    base = random.uniform(0, math.tau)
+    paths = []
+
+    for index in range(ray_count):
+        angle = base + index * math.tau / ray_count + random.uniform(-0.42, 0.42)
+        length = random.uniform(7, 13)
+        end = (
+            max(2, min(26, cx + math.cos(angle) * length)),
+            max(2, min(26, cy + math.sin(angle) * length)),
+        )
+        if random.random() < 0.45:
+            mid = (
+                cx + math.cos(angle) * length * random.uniform(0.35, 0.6) + random.uniform(-1.5, 1.5),
+                cy + math.sin(angle) * length * random.uniform(0.35, 0.6) + random.uniform(-1.5, 1.5),
+            )
+            paths.append(_make_path([(cx, cy), mid, end]))
+        else:
+            paths.append(_make_path([(cx, cy), end]))
+
+    return _make_multi_path_spec("junction_structure", "hard", False, paths)
+
+
+def _room_with_internal_wall_spec():
+    x1 = random.randint(2, 6)
+    y1 = random.randint(2, 6)
+    x2 = random.randint(21, 26)
+    y2 = random.randint(21, 26)
+    skew = random.randint(-2, 2)
+    outer = [
+        (x1, y1 + random.randint(0, 2)),
+        (x2 + skew, y1),
+        (x2, y2 + random.randint(-1, 1)),
+        (x1 + random.randint(-1, 1), y2),
+    ]
+    outer_closed = [*outer, outer[0]]
+    cx = random.randint(x1 + 6, x2 - 5)
+    cy = random.randint(y1 + 6, y2 - 5)
+
+    if random.random() < 0.5:
+        first_wall = [(cx, y1 + random.randint(1, 4)), (cx + random.randint(-1, 1), y2 - random.randint(1, 4))]
+        second_wall = [(x1 + random.randint(2, 5), cy), (cx, cy), (x2 - random.randint(2, 5), cy + random.randint(-1, 1))]
+    else:
+        first_wall = [(x1 + random.randint(2, 5), cy), (x2 - random.randint(2, 5), cy + random.randint(-1, 1))]
+        second_wall = [(cx, y1 + random.randint(1, 4)), (cx, cy), (cx + random.randint(-1, 1), y2 - random.randint(1, 4))]
+
+    paths = [
+        _make_path(outer_closed),
+        _make_path(first_wall),
+        _make_path(second_wall),
+    ]
+    return _make_multi_path_spec("room_with_internal_wall", "hard", True, paths, points=outer)
+
+
 NEW_CLOSED_MAKERS = [_closed_random_polygon_spec, _irregular_closed_room_spec]
 NEW_OPEN_MAKERS = [_open_random_polyline_spec, _irregular_open_outline_spec]
 LEGACY_CLOSED_MAKERS = [
@@ -290,20 +416,28 @@ LEGACY_OPEN_MAKERS = [
     _legacy_stair_shape_spec,
     _legacy_random_polyline_spec,
 ]
+HARD_CLOSED_MAKERS = [_room_with_internal_wall_spec]
+HARD_OPEN_MAKERS = [_cross_like_structure_spec, _junction_structure_spec]
 
 
 def _choose_structure_spec():
+    hard_family = random.random() < HARD_STRUCTURE_RATIO
     closed = random.random() < CLOSED_STRUCTURE_RATIO
-    new_family = random.random() < NEW_STRUCTURE_RATIO
 
-    if closed and new_family:
-        maker = random.choice(NEW_CLOSED_MAKERS)
-    elif closed:
-        maker = random.choice(LEGACY_CLOSED_MAKERS)
-    elif new_family:
-        maker = random.choice(NEW_OPEN_MAKERS)
+    if hard_family:
+        makers = HARD_CLOSED_MAKERS if closed else HARD_OPEN_MAKERS
+        maker = random.choice(makers)
     else:
-        maker = random.choice(LEGACY_OPEN_MAKERS)
+        new_family = random.random() < NEW_STRUCTURE_RATIO
+
+        if closed and new_family:
+            maker = random.choice(NEW_CLOSED_MAKERS)
+        elif closed:
+            maker = random.choice(LEGACY_CLOSED_MAKERS)
+        elif new_family:
+            maker = random.choice(NEW_OPEN_MAKERS)
+        else:
+            maker = random.choice(LEGACY_OPEN_MAKERS)
 
     for _ in range(12):
         spec = maker()
@@ -314,6 +448,9 @@ def _choose_structure_spec():
 
 
 def _render_structure_spec(spec):
+    if "paths" in spec:
+        return _render_path_collection(spec["paths"])
+
     return _render_points(spec["points"])
 
 
