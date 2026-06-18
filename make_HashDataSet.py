@@ -4,6 +4,8 @@ import math
 import numpy as np
 from PIL import Image, ImageDraw
 
+from dataset_style import draw_jittered_line, finalize_image, random_stroke_width
+
 IMAGE_SIZE = 28
 SCALE = 4
 CANVAS_SIZE = IMAGE_SIZE * SCALE
@@ -13,9 +15,9 @@ def make_canvas():
     return Image.new("L", (CANVAS_SIZE, CANVAS_SIZE), 0)
 
 
-def downsample(img):
-    img = img.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.BILINEAR)
-    return np.array(img, dtype=np.uint8)
+def rotate_randomly(img):
+    angle = random.uniform(0, 360)
+    return img.rotate(angle, resample=Image.Resampling.NEAREST, expand=True, fillcolor=0)
 
 
 def draw_centered_line(draw, center, length, angle, width):
@@ -24,10 +26,12 @@ def draw_centered_line(draw, center, length, angle, width):
     dx = math.cos(angle) * half
     dy = math.sin(angle) * half
 
-    draw.line(
+    draw_jittered_line(
+        draw,
         [(cx - dx, cy - dy), (cx + dx, cy + dy)],
         fill=255,
         width=width,
+        scale=SCALE,
     )
 
 
@@ -35,7 +39,7 @@ def make_hash():
     img = make_canvas()
     draw = ImageDraw.Draw(img)
 
-    width = random.randint(4, 8)
+    width = random_stroke_width(SCALE)
     center_x = random.randint(52, 60)
     center_y = random.randint(52, 60)
     vertical_length = random.randint(68, 88)
@@ -66,10 +70,7 @@ def make_hash():
             width,
         )
 
-    rotation_angle = random.uniform(-20, 20)
-    img = img.rotate(rotation_angle, resample=Image.Resampling.NEAREST, fillcolor=0)
-
-    return downsample(img)
+    return finalize_image(rotate_randomly(img), IMAGE_SIZE)
 
 
 def make_hash_sample():

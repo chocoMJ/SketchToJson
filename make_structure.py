@@ -3,6 +3,8 @@ import random
 import numpy as np
 from PIL import Image, ImageDraw
 
+from dataset_style import draw_jittered_line, finalize_image, random_stroke_width
+
 
 IMAGE_SIZE = 28
 OUTER_START_MIN = 3
@@ -35,12 +37,12 @@ def draw_lines(points, width=None):
     draw = ImageDraw.Draw(img)
 
     if width is None:
-        width = random.randint(1, 2)
+        width = random_stroke_width()
 
     points = [jitter_point(x, y) for x, y in points]
-    draw.line(points, fill=255, width=width)
+    draw_jittered_line(draw, points, fill=255, width=width)
 
-    return np.array(img, dtype=np.uint8)
+    return finalize_image(img, IMAGE_SIZE)
 
 
 def make_rectangle():
@@ -230,7 +232,7 @@ def make_structure_sample():
     return arr
 
 
-def make_structure_npy(save_path="data_polygon/structure.npy", count=50000):
+def make_structure_npy(save_path="data_polygon/structure.npy", count=400000):
     samples = []
 
     for _ in range(count):
@@ -248,4 +250,4 @@ def make_structure_npy(save_path="data_polygon/structure.npy", count=50000):
 
 
 if __name__ == "__main__":
-    make_structure_npy("data_polygon/structure.npy", count=50000)
+    make_structure_npy("data_polygon/structure.npy", count=400000)

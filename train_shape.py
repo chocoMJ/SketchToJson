@@ -36,13 +36,13 @@ class ShapeNet(nn.Module):
         return output
 
 
-def train(args, model, device, train_loader, optimizer, epoch):
+def train(args, model, device, train_loader, optimizer, epoch, class_weights):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data)
-        loss = F.nll_loss(output, target)
+        loss = F.nll_loss(output, target, weight=class_weights)
         loss.backward()
         optimizer.step()
         if batch_idx % args.log_interval == 0:
@@ -53,19 +53,26 @@ def train(args, model, device, train_loader, optimizer, epoch):
                 break
 
 
-def test(model, device, test_loader):
+def test(model, device, test_loader, class_weights):
     model.eval()
     test_loss = 0
+    test_weight = 0
     correct = 0
     with torch.no_grad():
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             output = model(data)
-            test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
+            test_loss += F.nll_loss(
+                output,
+                target,
+                weight=class_weights,
+                reduction='sum',
+            ).item()
+            test_weight += class_weights[target].sum().item()
             pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
             correct += pred.eq(target.view_as(pred)).sum().item()
 
-    test_loss /= len(test_loader.dataset)
+    test_loss /= test_weight
 
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
@@ -93,8 +100,8 @@ def main():
                         help='random seed (default: 1)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
-    parser.add_argument('--max-per-object-class', type=int, default=5000, metavar='N',
-                        help='max samples for triangle/plus/hash/star classes; structure uses x8 and arrow uses x4 (default: 5000)')
+    parser.add_argument('--max-per-object-class', type=int, default=50000, metavar='N',
+                        help='max samples per object class; structure uses x8 (default: 50000)')
     args = parser.parse_args()
 
     use_accel = not args.no_accel and torch.accelerator.is_available()
@@ -133,7 +140,7 @@ def main():
             args.max_per_object_class * 8,
             args.max_per_object_class,
             args.max_per_object_class,
-            args.max_per_object_class * 4,
+            args.max_per_object_class,
             args.max_per_object_class,
         ]
     )
@@ -150,12 +157,17 @@ def main():
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
     model = ShapeNet().to(device)
+    class_weights = torch.tensor(
+        [1.0, 0.125, 1.0, 1.0, 1.0, 1.0],
+        dtype=torch.float32,
+        device=device,
+    )
     optimizer = optim.Adadelta(model.parameters(), lr=args.lr)
 
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
     for epoch in range(1, args.epochs + 1):
-        train(args, model, device, train_loader, optimizer, epoch)
-        test(model, device, test_loader)
+        train(args, model, device, train_loader, optimizer, epoch, class_weights)
+        test(model, device, test_loader, class_weights)
         scheduler.step()
 
     torch.save(model.state_dict(), "shape_classifier_cnn.pth")

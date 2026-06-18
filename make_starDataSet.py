@@ -3,6 +3,8 @@ import random
 import numpy as np
 from PIL import Image, ImageDraw
 
+from dataset_style import draw_jittered_line, finalize_image, random_stroke_width
+
 IMAGE_SIZE = 28
 SCALE = 4
 CANVAS_SIZE = IMAGE_SIZE * SCALE
@@ -12,9 +14,9 @@ def make_canvas():
     return Image.new("L", (CANVAS_SIZE, CANVAS_SIZE), 0)
 
 
-def downsample(img):
-    img = img.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.BILINEAR)
-    return np.array(img, dtype=np.uint8)
+def rotate_randomly(img):
+    angle = random.uniform(0, 360)
+    return img.rotate(angle, resample=Image.Resampling.NEAREST, expand=True, fillcolor=0)
 
 
 def jitter(point, amount):
@@ -29,7 +31,7 @@ def make_star():
     img = make_canvas()
     draw = ImageDraw.Draw(img)
 
-    width = random.randint(4, 10)
+    width = random_stroke_width(SCALE)
     shift_x = random.randint(-4, 4)
     shift_y = random.randint(-4, 4)
     scale = random.uniform(0.9, 1.08)
@@ -70,9 +72,9 @@ def make_star():
             points["top"],
         ]
 
-    draw.line(order, fill=255, width=width, joint="curve")
+    draw_jittered_line(draw, order, fill=255, width=width, scale=SCALE)
 
-    return downsample(img)
+    return finalize_image(rotate_randomly(img), IMAGE_SIZE)
 
 
 def make_star_sample():

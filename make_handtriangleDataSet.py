@@ -4,6 +4,8 @@ import math
 import numpy as np
 from PIL import Image, ImageDraw
 
+from dataset_style import draw_jittered_line, finalize_image, random_stroke_width
+
 IMAGE_SIZE = 28
 SCALE = 4
 CANVAS_SIZE = IMAGE_SIZE * SCALE
@@ -13,16 +15,16 @@ def make_canvas():
     return Image.new("L", (CANVAS_SIZE, CANVAS_SIZE), 0)
 
 
-def downsample(img):
-    img = img.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.BILINEAR)
-    return np.array(img, dtype=np.uint8)
+def rotate_randomly(img):
+    angle = random.uniform(0, 360)
+    return img.rotate(angle, resample=Image.Resampling.NEAREST, expand=True, fillcolor=0)
 
 
 def make_handtriangle():
     img = make_canvas()
     draw = ImageDraw.Draw(img)
 
-    width = random.randint(4, 10)
+    width = random_stroke_width(SCALE)
     left = random.randint(12, 24)
     right = random.randint(88, 100)
     top = random.randint(10, 24)
@@ -42,9 +44,9 @@ def make_handtriangle():
         (apex_x, apex_y),
     ]
 
-    draw.line(points, fill=255, width=width, joint="curve")
+    draw_jittered_line(draw, points, fill=255, width=width, scale=SCALE)
 
-    return downsample(img)
+    return finalize_image(rotate_randomly(img), IMAGE_SIZE)
 
 
 def make_handtriangle_sample():
